@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DSAA 5024 - Assignment 1</title>
+</head>
+<body>
+
+<p>This is an example of a scatterplot using aggregation from 1 million points.</p>
+<div id="scatterplot"></div>
+
+<script src="https://d3js.org/d3.v5.js"></script>
+
+<script>
+    // Define viewport and margins for the scatterplot
+    let vp = {width: 600, height: 500};
+    let margin = {top: 10, right: 30, bottom: 30, left: 60};
+
+    // Append SVG to the "scatterplot" div with appropriate width and height
+    var svg = d3.select("#scatterplot").append("svg")
+        .attr("width", vp.width + margin.left + margin.right)
+        .attr("height", vp.height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Define the x and y scales for the scatterplot
+    var x = d3.scaleLinear().domain([0, 1]).range([0, vp.width]);
+    var y = d3.scaleLinear().domain([0, 1]).range([vp.height, 0]);
+
+    // Generate random data points
+    var num_pts = 1000000;
+    var data = [];
+    for (var i = 0; i < num_pts; i++) {
+        data.push({x: Math.random(), y: Math.random()});
+    }
+
+    // Define binning parameters
+    var binSize = 0.01; // For instance, 0.02 means we will have 50 bins along one axis in the range [0,1]
+    var binsX = d3.histogram()
+        .domain(x.domain())
+        .thresholds(x.ticks(Math.ceil(1 / binSize)))
+        .value(d => d.x);
+    var binsY = d3.histogram()
+        .domain(y.domain())
+        .thresholds(y.ticks(Math.ceil(1 / binSize)))
+        .value(d => d.y);
+
+
+    // Create the bins for x and y
+    var xBins = binsX(data);
+    var yBins = binsY(data);
+
+    // Initialize a 2D array for binned data aggregation
+    var binnedData = [];
+    for (var i = 0; i < xBins.length; i++) {
+        binnedData[i] = new Array(yBins.length).fill(0);
+    }
+
+    // Aggregate the data
+    data.forEach(d => {
+        var xBinIndex = Math.floor((d.x - x.domain()[0]) / binSize);
+        var yBinIndex = Math.floor((d.y - y.domain()[0]) / binSize);
+        binnedData[xBinIndex][yBinIndex]++;
+    });
+
+    // Render the aggregated data as rectangles
+    for (var xIndex = 0; xIndex < xBins.length - 1; xIndex++) {
+        for (var yIndex = 0; yIndex < yBins.length - 1; yIndex++) {
+            var count = binnedData[xIndex][yIndex];
+            svg.append("rect")
+                .attr("x", x(xBins[xIndex].x0))
+                .attr("y", y(yBins[yIndex].x1))
+                .attr("width", x(binSize) - x(0))
+                .attr("height", y(0) - y(binSize))
+                .attr("fill", d3.interpolateGreens(count / 100)); // Adjust max count if needed
+        }
+    }
+
+    // Add the x-axis to the scatterplot
+    svg.append("g")
+        .attr("transform", "translate(0," + vp.height + ")")
+        .call(d3.axisBottom(x));
+
+    // Add the y-axis to the scatterplot
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+</script>
+</body>
+</html>

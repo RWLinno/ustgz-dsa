@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DSAA 5024 - Assignment 1</title>
+</head>
+<body>
+
+<p>This is an example of a scatterplot for sampled data from 1 million points.</p>
+<div id="scatterplot"></div>
+
+<script src="https://d3js.org/d3.v5.js"></script>
+
+<script>
+    // Define viewport and margins for the scatterplot
+    let vp = {width: 600, height: 500};
+    let margin = {top: 10, right: 30, bottom: 30, left: 60};
+
+    // Append SVG to the "scatterplot" div with appropriate width and height
+    var svg = d3.select("#scatterplot").append("svg")
+        .attr("width", vp.width + margin.left + margin.right)
+        .attr("height", vp.height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Define the x and y scales for the scatterplot
+    var x = d3.scaleLinear().domain([0, 1]).range([0, vp.width]);
+    var y = d3.scaleLinear().domain([0, 1]).range([vp.height, 0]);
+
+    // Number of total points and the desired sample size
+    var num_pts = 1000000;
+    var sample_size = 10000;
+
+    // Generate random data points
+    var data = [];
+    for (var i = 0; i < num_pts; i++) {
+        data.push({x: Math.random(), y: Math.random()});
+    }
+
+    // Sampling function: Selects representative subset of data
+    function sampleData(data, size) {
+        let sampled = [];
+        let step = Math.floor(data.length / size);
+        for (var i = 0; i < data.length; i += step) {
+            sampled.push(data[i]);
+        }
+        return sampled;
+    }
+
+    // Obtain a sample from the dataset
+    var sampledData = sampleData(data, sample_size);
+
+    // Render the sampled data points in the scatterplot
+    svg.append('g').selectAll("dot")
+        .data(sampledData)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.x))
+        .attr("cy", d => y(d.y))
+        .attr("r", 1.5)
+        .style("fill", "#00EE00");
+
+    // Add the x-axis to the scatterplot
+    svg.append("g")
+        .attr("transform", "translate(0," + vp.height + ")")
+        .call(d3.axisBottom(x));
+
+    // Add the y-axis to the scatterplot
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+</script>
+
+</body>
+</html>
