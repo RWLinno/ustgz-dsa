@@ -1,1 +1,1 @@
-this repo is used to process related files for my mphil classnote.
+This repo is used to process related files for my mphil classnote and meterials at HKUST(gz).
