@@ -1,0 +1,29 @@
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \usepackage{graphicx}
+% \usepackage[normalem]{ulem}
+% \useunder{\uline}{\ul}{}
+\begin{table}[!b]
+\vspace{-1em}
+\small
+\centering
+\caption{UHI Warning Spatio-temporal Precision Evaluation.}
+\vspace{-1em}
+\label{tab:location}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{cccccc}
+\hline
+\multirow{2}{*}{Method} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Complexity\\ (multi-adds)\end{tabular}} & \multicolumn{2}{c}{24 Hours} & \multicolumn{2}{c}{48 Hours} \\ \cline{3-6} 
+ &  & k=3 & k=9 & k=3 & k=9 \\ \hline
+LR & 1.69 M & 0.395 & 0.513 & 0.294 & 0.331 \\
+DLinear & 1.69 M & 0.414 & 0.532 & 0.322 & 0.359 \\
+GWN & 297,160 M & 0.459 & 0.593 & 0.355 & 0.386 \\
+STID & 7,560 M & 0.421 & 0.556 & 0.331 & 0.358 \\
+SATEformer & 236,330 M & 0.472 & 0.604 & 0.376 & 0.423 \\ \hline
+\multicolumn{6}{c}{Contextual Features Augmented Variants} \\ \hline
+DLinear+Context & 13.01M & 0.423 & 0.545 & 0.329 & 0.365 \\
+SATEformer+Context & 236,352M & {\ul 0.481} & {\ul 0.644} & {\ul 0.389} & {\ul 0.452} \\ \hline
+\textbf{DeepUHI} & 20.95 M & \textbf{0.653} & \textbf{0.802} & \textbf{0.495} & \textbf{0.569} \\ \hline
+\end{tabular}%
+}
+\end{table}

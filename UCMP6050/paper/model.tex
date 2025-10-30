@@ -1,0 +1,49 @@
+\section{Preliminaries}
+\label{sec:model}
+
+\begin{myDef}
+\textbf{Urban Heat Island Effect.} Urban heat island effect refers to the quantification of the local thermal behavior of city within a complex felid environment. A higher level of UHI effect indicates that people or urban infrastructures are likely to experience greater heat effects at that time. In practice, the UHI effect is quantified using field temperature series $\mathbf{X} \in \mathbb{R}^{N \times T}$, where $\mathbf{X}_{i,j}$ denotes the $i_{th}$ attribute at time $j$.
+\end{myDef}
+
+
+\begin{myDef}
+\textbf{Thermal Station Network.} Thermal station network consists of a group of local temperature monitoring stations within a city, denoted as $\mathcal{G}=(\mathbf{V},\mathbf{E})$, where $\mathbf{V}$ represents the set of stations and $N =|\mathbf{V}|$ is the number of stations. The set $E$ denotes the edges that represent the relationships among the stations. Here, we use $\mathbf{A} \in \mathbb{R}^{N \times N}$ to denote the basic distance-based adjacency matrix of the thermal station network.
+\end{myDef}
+
+\begin{myDef}
+\textbf{Contextual Feature.} Contextual features represent the environmental features surrounding each station. In practice, we use satellite imagery, street-view imagery, and land-use information to represent the surrounding environment. These diverse types of features can be flattened and concatenated to form a comprehensive representation. We denote the contextual features associated with each station as $\mathbf{C} \in \mathbb{R}^{N \times C}$, where $C$ represents the feature dimension.
+\end{myDef}
+
+\begin{problem}
+
+\textbf{Urban Heat Island Effect Forecasting.} For graph $\mathcal{G}$, we compute pairwise distances between stations to derive the adjacency matrix based on a predefined distance threshold. Let  $\mathbf{X} \in \mathbb{R}^{N \times T}$ denote the observed field temperatures from all stations, where $T$ is the number of historical time steps. The historical observation at time $t$ is defined as $\mathcal{H}^{t} = (\mathcal{G}, \mathbf{C}, \mathbf{X}^{t})$. The forecasting problem is framed probabilistically as:
+\begin{equation}
+p\left(\mathcal{Y}^{t+1:t+K} \mid \mathcal{H}^{t-P+1:t}\right) = \mathcal{F}_\theta\left(\mathcal{H}^{t-P+1}, \dots, \mathcal{H}^t\right)
+\end{equation}
+where $p\left(\mathcal{Y}^{t+1:t+K} \mid \mathcal{H}^{t-P+1:t}\right)$ is the predictive probability distribution over future observations. To learn model parameters $\theta$, we maximize the log-likelihood of the observed future sequences:
+\begin{equation}
+\theta^* = \arg\max_\theta \sum_{t=P}^{T - K} \log p\left(\mathcal{Y}^{t+1:t+K} \mid \mathcal{H}^{t-P+1:t}\right)    
+\end{equation}
+\end{problem}
+
+% For $\mathcal{G}$, we compute the pairwise distances between stations and derive the adjacency matrix using a predefined distance threshold. Let $\mathbf{X} \in \mathbb{R}^{N \times T}$ be the observed field temperature from all stations, where $T$ represents the number of historical time steps. We denote $\mathcal{H}^{t} = (\mathcal{G}, \mathbf{C}, \mathbf{X}^{t})$, which indicates all the observed values at time step $t$. We define the problem as follows:
+% \begin{equation}
+% \left(\hat{\mathcal{Y}}^{t+1}, \hat{\mathcal{Y}}^{t+2}, \cdots, \hat{\mathcal{Y}}^{t+K}\right) \leftarrow \mathcal{F}_\theta\left(\mathcal{H}^{t-P+1}, \mathcal{H}^{t-P+2}, \cdots \mathcal{H}^t\right)
+% \end{equation}
+
+% where $\hat{\mathcal{Y}}^{t+K}$ denotes the predicted value at time step $t+K$, $\mathcal{F}_\theta$ is the forecasting model, $P$ and $K$ are the number of historical and future time steps, respectively.
+
+
+% \textbf{Urban Heat Island Effect} refers to the quantification of the local thermal behavior of a city within a complex regional environment. A higher level of UHI effect indicates that people or urban infrastructures are likely to experience greater heat effects at that time. In practice, the UHI effect is quantified using field temperature series.
+
+% \noindent\textbf{Thermal Station Network} consists of a group of local temperature monitoring stations within a city, denoted as $\mathcal{G}=(\mathbf{V},\mathbf{E})$, where $\mathbf{V}$ represents the set of stations and $N =|\mathbf{V}|$ is the number of stations. The set $E$ denotes the edges that represent the relationships among the stations. In this context, we use $\mathbf{A} \in \mathbb{R}^{N \times N}$ to denote the distance-based adjacency matrix of the station network.
+
+% \noindent\textbf{Contextual Feature} represents the environmental features surrounding each station. In practice, we use satellite imagery, street-view imagery, and land use information to represent the surrounding environment. We denote the contextual features associated with each station as $\mathbf{C} \in \mathbb{R}^{N \times C}$, where $C$ represents the feature dimension.
+
+% \textbf{Problem Statement.} For $\mathcal{G}$, we compute the pairwise distances between stations and derive the adjacency matrix using a predefined distance threshold. Let $\mathbf{X} \in \mathbb{R}^{N \times T}$ be the observed field temperature from all stations, where $T$ represents the number of historical time steps. We denote $\mathcal{H}^{t} = (\mathcal{G}, \mathbf{C}, \mathbf{X}^{t})$, which indicates all the observed values at time step $t$. We define the problem as follows.
+
+% \begin{equation}
+% \left(\hat{\mathcal{Y}}^{t+1}, \hat{\mathcal{Y}}^{t+2}, \cdots, \hat{\mathcal{Y}}^{t+K}\right) \leftarrow \mathcal{F}_\theta\left(\mathcal{H}^{t-P+1}, \mathcal{H}^{t-P+2}, \cdots \mathcal{H}^t\right),
+% \end{equation}
+
+% where $\hat{\mathcal{Y}}^{t+K}$ denotes the predicted value at time step $t+K$ , $\mathcal{F}_\theta$ is the forecasting model, $P$ and $K$ are the number of historical and future time steps, respectively.

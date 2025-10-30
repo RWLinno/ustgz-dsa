@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTIS Demo Test</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            max-width: 300px;
+            z-index: 1000;
+        }
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+        }
+        .stat {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-panel">
+        <h3>🚚 CTIS Test</h3>
+        <div class="stat">📦 Pickup: <span id="pickupCount">0</span></div>
+        <div class="stat">🏠 Delivery: <span id="deliveryCount">0</span></div>
+        <div class="stat">✅ Map: <span id="mapStatus">Loading...</span></div>
+        <div class="stat" style="margin-top: 10px; font-size: 0.85em;">
+            <strong>Roles:</strong><br>
+            <span style="color: #e74c3c;">● Hub</span>
+            <span style="color: #3498db;">● Warehouse</span><br>
+            <span style="color: #2ecc71;">● Station</span>
+            <span style="color: #f39c12;">● Residential</span><br>
+            <span style="color: #9b59b6;">● Commercial</span>
+            <span style="color: #1abc9c;">● Office</span>
+        </div>
+        <button id="clearRouteBtn" style="margin-top: 10px; width: 100%; padding: 8px; 
+                background: #f56565; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Clear Route
+        </button>
+    </div>
+
+    <script>
+        console.log('🧪 CTIS Test Page Loading...');
+
+        // State for route selection
+        const state = {
+            selectedPoints: [],
+            routeLayer: null,
+            markers: {}
+        };
+
+        // Initialize map
+        const map = L.map('map').setView([31.2304, 121.4737], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        document.getElementById('mapStatus').textContent = 'Ready';
+        console.log('✅ Map initialized');
+        
+        // Clear route button
+        document.getElementById('clearRouteBtn').addEventListener('click', () => {
+            if (state.routeLayer) {
+                map.removeLayer(state.routeLayer);
+                state.routeLayer = null;
+            }
+            state.selectedPoints = [];
+            // Reset marker styles
+            Object.values(state.markers).forEach(marker => {
+                const el = marker.getElement();
+                if (el) {
+                    const div = el.querySelector('div');
+                    if (div) {
+                        div.style.borderColor = 'white';
+                        div.style.transform = 'scale(1)';
+                    }
+                }
+            });
+            console.log('Route cleared');
+        });
+
+        // Load and display data
+        async function loadAndDisplay() {
+            try {
+                // Load pickup points
+                const pickupResponse = await fetch('data/pickup_points.json');
+                const pickupData = await pickupResponse.json();
+                console.log(`📦 Loaded ${pickupData.length} pickup points`);
+                document.getElementById('pickupCount').textContent = pickupData.length;
+
+                // Load delivery points
+                const deliveryResponse = await fetch('data/delivery_points.json');
+                const deliveryData = await deliveryResponse.json();
+                console.log(`🏠 Loaded ${deliveryData.length} delivery points`);
+                document.getElementById('deliveryCount').textContent = deliveryData.length;
+
+                // Add pickup markers (增大尺寸,添加角色颜色)
+                pickupData.forEach((point, idx) => {
+                    if (idx < 30) { // Show first 30
+                        const markerColor = point.role_color || '#4299e1';
+                        
+                        const icon = L.divIcon({
+                            className: 'custom-marker',
+                            html: `<div style="width: 16px; height: 16px; border-radius: 50%; 
+                                   background: ${markerColor}; border: 3px solid white; 
+                                   box-shadow: 0 3px 6px rgba(0,0,0,0.4);"></div>`,
+                            iconSize: [22, 22]
+                        });
+                        
+                        const marker = L.marker([point.lat, point.lng], { icon }).addTo(map);
+                        state.markers[point.id] = marker;
+                        
+                        const roleIcon = point.role === 'Hub' ? '🏢' : 
+                                        point.role === 'Warehouse' ? '🏭' :
+                                        point.role === 'Station' ? '📍' :
+                                        point.role === 'Residential' ? '🏠' :
+                                        point.role === 'Commercial' ? '🏪' : '🏢';
+                        
+                        marker.bindPopup(`
+                            <div style="padding: 10px;">
+                                <b>${roleIcon} ${point.id}</b><br>
+                                <span style="color: ${markerColor};">●</span> Role: ${point.role}<br>
+                                Type: ${point.aoi_type}<br>
+                                Courier: ${point.courier_id}<br>
+                                Demand: ${point.demand}
+                                <hr style="margin: 8px 0;">
+                                <button onclick="selectForRoute('${point.id}', ${point.lat}, ${point.lng}, '${point.role}')"
+                                        style="width: 100%; padding: 5px; background: #48bb78; 
+                                               color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    Select for Route
+                                </button>
+                            </div>
+                        `);
+                    }
+                });
+
+                // Add delivery markers (增大尺寸,添加角色颜色)
+                deliveryData.forEach((point, idx) => {
+                    if (idx < 30) { // Show first 30
+                        const markerColor = point.role_color || '#48bb78';
+                        
+                        const icon = L.divIcon({
+                            className: 'custom-marker',
+                            html: `<div style="width: 16px; height: 16px; border-radius: 50%; 
+                                   background: ${markerColor}; border: 3px solid white; 
+                                   box-shadow: 0 3px 6px rgba(0,0,0,0.4);"></div>`,
+                            iconSize: [22, 22]
+                        });
+                        
+                        const marker = L.marker([point.lat, point.lng], { icon }).addTo(map);
+                        state.markers[point.id] = marker;
+                        
+                        const roleIcon = point.role === 'Hub' ? '🏢' : 
+                                        point.role === 'Warehouse' ? '🏭' :
+                                        point.role === 'Station' ? '📍' :
+                                        point.role === 'Residential' ? '🏠' :
+                                        point.role === 'Commercial' ? '🏪' : '🏢';
+                        
+                        marker.bindPopup(`
+                            <div style="padding: 10px;">
+                                <b>${roleIcon} ${point.id}</b><br>
+                                <span style="color: ${markerColor};">●</span> Role: ${point.role}<br>
+                                Type: ${point.aoi_type}<br>
+                                Courier: ${point.courier_id}<br>
+                                Demand: ${point.demand}
+                                <hr style="margin: 8px 0;">
+                                <button onclick="selectForRoute('${point.id}', ${point.lat}, ${point.lng}, '${point.role}')"
+                                        style="width: 100%; padding: 5px; background: #48bb78; 
+                                               color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    Select for Route
+                                </button>
+                            </div>
+                        `);
+                    }
+                });
+
+                console.log('✅ All markers added to map');
+                
+                // Add route selection function
+                window.selectForRoute = function(id, lat, lng, role) {
+                    state.selectedPoints.push({ id, lat, lng, role });
+                    
+                    // Highlight selected marker
+                    const marker = state.markers[id];
+                    if (marker) {
+                        const el = marker.getElement();
+                        if (el) {
+                            const div = el.querySelector('div');
+                            if (div) {
+                                div.style.borderColor = '#fbbf24';
+                                div.style.borderWidth = '4px';
+                            }
+                        }
+                    }
+                    
+                    console.log(`Selected: ${id}, Total: ${state.selectedPoints.length}`);
+                    
+                    // If 2 points selected, draw route
+                    if (state.selectedPoints.length === 2) {
+                        const [p1, p2] = state.selectedPoints;
+                        
+                        // Remove old route
+                        if (state.routeLayer) {
+                            map.removeLayer(state.routeLayer);
+                        }
+                        
+                        // Draw new route
+                        state.routeLayer = L.polyline([
+                            [p1.lat, p1.lng],
+                            [p2.lat, p2.lng]
+                        ], {
+                            color: '#667eea',
+                            weight: 4,
+                            opacity: 0.8,
+                            dashArray: '10, 10'
+                        }).addTo(map);
+                        
+                        // Calculate distance
+                        const dist = Math.sqrt(
+                            Math.pow(p1.lat - p2.lat, 2) + 
+                            Math.pow(p1.lng - p2.lng, 2)
+                        ) * 111;
+                        
+                        const time = (dist * 3).toFixed(0);
+                        
+                        state.routeLayer.bindPopup(`
+                            <div style="padding: 10px;">
+                                <h4 style="margin: 0 0 8px 0; color: #667eea;">Route Info</h4>
+                                <div style="font-size: 0.9em;">
+                                    From: ${p1.id} (${p1.role})<br>
+                                    To: ${p2.id} (${p2.role})<br>
+                                    Distance: ~${dist.toFixed(2)} km<br>
+                                    Est. Time: ~${time} min
+                                </div>
+                            </div>
+                        `).openPopup();
+                        
+                        // Fit bounds
+                        map.fitBounds([
+                            [p1.lat, p1.lng],
+                            [p2.lat, p2.lng]
+                        ], { padding: [50, 50] });
+                        
+                        alert(`✅ Route calculated!\nDistance: ${dist.toFixed(2)} km\nTime: ~${time} min`);
+                    }
+                    
+                    // Reset after 2 selections
+                    if (state.selectedPoints.length >= 2) {
+                        setTimeout(() => {
+                            state.selectedPoints = [];
+                        }, 100);
+                    }
+                };
+
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                document.getElementById('mapStatus').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Start loading
+        loadAndDisplay();
+    </script>
+</body>
+</html>
+

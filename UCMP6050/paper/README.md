@@ -1,0 +1,1 @@
+<hint>该目录存放KDD文章模版，我们需要将group prohect的文章latex源码，参考它的写作风格和逻辑。<\hint>

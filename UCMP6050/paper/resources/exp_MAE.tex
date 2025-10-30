@@ -1,0 +1,29 @@
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \usepackage{graphicx}
+% \usepackage[normalem]{ulem}
+% \useunder{\uline}{\ul}{}
+\begin{table*}[]
+\centering
+
+\small
+\caption{Regional Temperature
+Prediction. The best results are in \textbf{bold} and second-best results are {\ul underlined}.}
+%\vspace{-1em}
+\label{exp_mae}
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{cccccccccccc}
+\hline
+\multirow{2}{*}{Horizons} & \multirow{2}{*}{Metric} & \multicolumn{3}{c}{\textit{Traditional Methods}} & \multicolumn{2}{c}{\textit{Time-series Methods}} & \multicolumn{4}{c}{\textit{Spatio-temporal Methods}} & \multirow{2}{*}{DeepUHI} \\ \cline{3-11}
+ &  & HA & LR & ARIMA & DLinear & PatchTST & GWN & MTGNN & STID & STAEformer &  \\ \hline
+\multirow{2}{*}{12} & MAE & 3.535 & 1.599 & 3.453 & 1.653 & 1.774 & 1.642 & 1.639 & \textbf{1.431} & 1.456 & {\ul 1.433} \\
+ & sMAPE & 0.485 & 0.408 & 0.486 & 0.256 & 0.309 & 0.257 & 0.261 & {\ul 0.242} & 0.244 & \textbf{0.241} \\ \hline
+\multirow{2}{*}{24} & MAE & 3.672 & 2.031 & 3.563 & 2.015 & 2.111 & 2.014 & 1.987 & {\ul 1.875} & 1.944 & \textbf{1.811} \\
+ & sMAPE & 0.497 & 0.332 & 0.499 & 0.321 & 0.344 & 0.322 & 0.309 & {\ul 0.305} & 0.312 & \textbf{0.303} \\ \hline
+\multirow{2}{*}{48} & MAE & 3.884 & 2.693 & 3.991 & 2.735 & 2.748 & 2.601 & 2.552 & {\ul 2.495} & 2.499 & \textbf{2.367} \\
+ & sMAPE & 0.514 & 0.403 & 0.524 & 0.412 & 0.434 & 0.405 & 0.392 & 0.387 & {\ul 0.382} & \textbf{0.375} \\ \hline
+\multirow{2}{*}{96} & MAE & 4.210 & 3.431 & 4.325 & 3.428 & 3.670 & 3.419 & 3.335 & 3.331 & {\ul 3.264} & \textbf{3.231} \\
+ & sMAPE & 0.543 & 0.484 & 0.555 & {\ul 0.477} & 0.513 & 0.493 & {\ul 0.477} & 0.483 & 0.478 & \textbf{0.464} \\ \hline
+\end{tabular}%
+}
+\end{table*}

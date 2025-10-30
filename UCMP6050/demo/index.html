@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTIS - Connected Transportation Information System</title>
+    
+    <!-- Mapbox GL JS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    
+    <!-- Leaflet (fallback map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Mapbox GL Geocoder -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css">
+    
+    <!-- D3.js for advanced visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo-container">
+                <i class="fas fa-truck-fast"></i>
+                <h1>CTIS</h1>
+            </div>
+            <h2>Connected Transportation Information System</h2>
+        </div>
+        <div class="nav-right">
+            <div class="current-time">
+                <i class="far fa-clock"></i>
+                <span id="current-time">Loading...</span>
+            </div>
+            <button class="nav-btn" id="toggleHeatmapBtn">
+                <i class="fas fa-fire"></i> Toggle Heatmap
+            </button>
+            <button class="nav-btn" id="toggle3DBtn">
+                <i class="fas fa-cube"></i> 3D View
+            </button>
+            <button class="nav-btn" id="menuBtn">
+                <i class="fas fa-bars"></i> Menu
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Notification Bar -->
+    <div class="notification-bar" id="notificationBar">
+        <i class="fas fa-info-circle"></i>
+        <span id="notification-text">🚚 Peak delivery demand predicted at 12:00 PM - 2:00 PM in Downtown Shanghai</span>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Map Area -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <div class="control-group">
+                    <label>Time Control</label>
+                    <input type="range" id="timeSlider" min="0" max="23" value="12" step="1">
+                    <span id="timeDisplay">12:00</span>
+                </div>
+                <div class="control-group">
+                    <label>Layer Selection</label>
+                    <div class="layer-buttons">
+                        <button class="layer-btn active" data-layer="all">
+                            <i class="fas fa-layer-group"></i> All
+                        </button>
+                        <button class="layer-btn" data-layer="pickup">
+                            <i class="fas fa-box"></i> Pickup
+                        </button>
+                        <button class="layer-btn" data-layer="delivery">
+                            <i class="fas fa-home"></i> Delivery
+                        </button>
+                        <button class="layer-btn" data-layer="routes">
+                            <i class="fas fa-route"></i> Routes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="legend-container">
+                <h4>Legend</h4>
+                <div class="legend-section">
+                    <h5>Node Roles</h5>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #e74c3c;"></span>
+                            <span>🏢 Hub</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #3498db;"></span>
+                            <span>🏭 Warehouse</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #2ecc71;"></span>
+                            <span>📍 Station</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #f39c12;"></span>
+                            <span>🏠 Residential</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #9b59b6;"></span>
+                            <span>🏪 Commercial</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="role-marker" style="background: #1abc9c;"></span>
+                            <span>🏢 Office</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="legend-section" style="margin-top: 15px;">
+                    <h5>Elements</h5>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <span class="line route-line"></span>
+                            <span>Route Path</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="line" style="background: #fbbf24; height: 3px;"></span>
+                            <span>Selected</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Demand Heatmap Scale -->
+                <div class="heatmap-scale">
+                    <h5>Demand Intensity</h5>
+                    <div class="scale-gradient"></div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Side Panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="overview">
+                    <i class="fas fa-chart-line"></i> Overview
+                </button>
+                <button class="tab-btn" data-tab="details">
+                    <i class="fas fa-info-circle"></i> Details
+                </button>
+                <button class="tab-btn" data-tab="forecast">
+                    <i class="fas fa-chart-area"></i> Forecast
+                </button>
+                <button class="tab-btn" data-tab="chat">
+                    <i class="fas fa-comments"></i> AI Assistant
+                </button>
+            </div>
+            
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview-tab">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalPackages">-</div>
+                            <div class="stat-label">Total Packages</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-truck"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="activeVehicles">-</div>
+                            <div class="stat-label">Active Vehicles</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="avgDeliveryTime">-</div>
+                            <div class="stat-label">Avg. Time (min)</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-percent"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="successRate">-</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Chart -->
+                <div class="chart-container" style="height: 280px;">
+                    <h3 style="margin-bottom: 10px;">Hourly Demand Distribution</h3>
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="demandDistChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Spatial Distribution Chart -->
+                <div class="chart-container" style="height: 280px;">
+                    <h3 style="margin-bottom: 10px;">Regional Performance</h3>
+                    <div style="height: 220px; position: relative;">
+                        <canvas id="regionalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Details Tab -->
+            <div class="tab-content" id="details-tab">
+                <div class="details-header">
+                    <h3>Point Details</h3>
+                    <button class="close-details" id="closeDetails">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="pointDetails" class="point-details">
+                    <p class="no-selection">Click on a point on the map to view details</p>
+                </div>
+                
+                <!-- Time Series Chart -->
+                <div class="chart-container" id="timeSeriesContainer" style="display: none; height: 320px;">
+                    <h3 style="margin-bottom: 5px;">Demand Time Series</h3>
+                    <div class="chart-header">
+                        <span class="chart-subtitle">Historical vs Predicted</span>
+                    </div>
+                    <div style="height: 240px; position: relative; margin-top: 10px;">
+                        <canvas id="timeSeriesChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Spatial Context -->
+                <div class="spatial-context" id="spatialContext" style="display: none;">
+                    <h3>Spatial Context</h3>
+                    <div class="context-images">
+                        <div class="context-image">
+                            <h4>Street View</h4>
+                            <div id="streetViewPlaceholder" class="image-placeholder">
+                                <i class="fas fa-street-view"></i>
+                                <p>Click to load street view</p>
+                            </div>
+                        </div>
+                        <div class="context-image">
+                            <h4>Satellite View</h4>
+                            <div id="satellitePlaceholder" class="image-placeholder">
+                                <i class="fas fa-satellite"></i>
+                                <p>Satellite imagery</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Forecast Tab -->
+            <div class="tab-content" id="forecast-tab">
+                <h3>Multi-Horizon Forecasting</h3>
+                
+                <div class="forecast-controls">
+                    <label>
+                        Forecast Horizon:
+                        <select id="horizonSelect">
+                            <option value="3">3 hours</option>
+                            <option value="6">6 hours</option>
+                            <option value="12" selected>12 hours</option>
+                            <option value="24">24 hours</option>
+                        </select>
+                    </label>
+                    <button class="btn-primary" id="generateForecast">
+                        <i class="fas fa-chart-line"></i> Generate Forecast
+                    </button>
+                </div>
+                
+                <div class="chart-container" style="height: 320px;">
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="forecast-metrics">
+                    <h4>Prediction Confidence</h4>
+                    <div class="metric-bars">
+                        <div class="metric-bar">
+                            <span>Model Confidence</span>
+                            <div class="progress-bar">
+                                <div class="progress" id="confidenceBar" style="width: 87%"></div>
+                            </div>
+                            <span class="metric-value">87%</span>
+                        </div>
+                        <div class="metric-bar">
+                            <span>Data Quality</span>
+                            <div class="progress-bar">
+                                <div class="progress" id="qualityBar" style="width: 92%"></div>
+                            </div>
+                            <span class="metric-value">92%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Tab -->
+            <div class="tab-content" id="chat-tab">
+                <div class="chat-header">
+                    <h3>AI Assistant</h3>
+                    <select id="roleSelect" class="role-select">
+                        <option value="analyst">📊 Analyst</option>
+                        <option value="driver">🚗 Driver</option>
+                        <option value="dispatcher">📋 Dispatcher</option>
+                        <option value="customer">👤 Customer</option>
+                    </select>
+                </div>
+                
+                <div id="chatMessages" class="chat-messages"></div>
+                
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask anything about the system..." />
+                    <button id="sendBtn" class="btn-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="quick-questions">
+                    <span class="quick-label">Quick Questions:</span>
+                    <button class="quick-btn">Peak hours?</button>
+                    <button class="quick-btn">Busiest area?</button>
+                    <button class="quick-btn">Success rate?</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Toggle Panel Button -->
+        <button class="toggle-panel-btn" id="togglePanelBtn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    
+    <!-- Modal for Menu -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>System Menu</h2>
+            <div class="menu-options">
+                <button class="menu-option" data-action="export">
+                    <i class="fas fa-download"></i>
+                    <span>Export Data</span>
+                </button>
+                <button class="menu-option" data-action="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <button class="menu-option" data-action="help">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </button>
+                <button class="menu-option" data-action="about">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay active">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
+

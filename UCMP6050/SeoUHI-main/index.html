@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.1">
+    <title>DeepMC View</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Import Mapbox GL JS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js'></script>
+    
+    <!-- Import D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Import Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Import PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    
+    <!-- Mapbox GL Geocoder -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+
+    <!-- Import custom styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- A navigation bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <img src="assets/logo.png" alt="SeoUHI Logo" class="logo">
+            <h1>SeoUHI</h1>
+            <h2>Seoul Urban Heat Island Management System</h2>
+        </div>
+        <div class="nav-right">
+            <div class="current-time">
+                <span id="current-time"></span>
+            </div>
+            <button class="toggle-heatmap-btn" id="toggleHeatmapBtn">Display heatmap</button>
+            <button class="menu-btn" id="menuBtn">Menu</button>
+        </div>
+    </nav>
+    
+    <!-- A notification bar -->
+    <div class="notification-bar">
+        <span id="notification-text">🌡️ The hottest point is expected to occur on January 2, 2024, at 3:00 PM in 개포동, 강남구, 서울특별시.</span>
+    </div>
+    
+    <!-- Map Area -->
+    <div id="map"></div>
+    
+    <!-- 添加侧边栏容器
+    <div id="sidebar" class="sidebar">
+        <button id="sidebar-close" class="sidebar-close-btn">&times;</button>
+        <div id="sidebar-content"></div>
+    </div> -->
+    
+    <!-- Legend Area -->
+    <!-- <div id="toolbar">
+        <div class="legend-container">
+            <div class="legend-texts">
+                <span class="legend-text">Ideal</span>
+                <span class="legend-text">Fair</span>
+                <span class="legend-text">Moderate</span>
+                <span class="legend-text">Poor</span>
+                <span class="legend-text">Severe</span>
+            </div>
+            <div class="legend-bars">
+                <div class="legend-bar" style="background-color: #019c07;"></div>
+                <div class="legend-bar" style="background-color: #70be85;"></div>
+                <div class="legend-bar" style="background-color: #e1c76a;"></div>
+                <div class="legend-bar" style="background-color: #eb9371;"></div>
+                <div class="legend-bar" style="background-color: #b84141;"></div>
+            </div>
+            <div class="legend-ranges">
+                <span class="legend-range" style="margin-top: 1px;">0</span>
+                <span class="legend-range">50</span>
+                <span class="legend-range">100</span>
+                <span class="legend-range">150</span>
+                <span class="legend-range">200</span>
+                <span class="legend-range" style="margin-bottom: 1px;">250</span>
+            </div>
+        </div>
+    </div>
+     -->
+    <!-- Mapbox Script -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet"
+          href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+          type="text/css">    
+          
+    <script src="js/main.js"></script>
+    <script src="js/heatmap.js"></script>
+    <script src="js/data.js"></script>
+    <!-- <script src="js/tool.js"></script> -->
+    <!-- <script src="js/interpolation.js"></script> -->
+    <script src="js/style.js"></script>
+    
+    <!-- 添加模态框容器 -->
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,510 @@
+/* 地图容器样式
+#map {
+    width: 100%;
+    height: 100vh;
+} */
+
+/* 弹出窗口样式 */
+.custom-popup .mapboxgl-popup-content {
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px !important;
+    width: 800px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* 弹出窗口内容布局 */
+.popup-content {
+    display: flex;
+    gap: 20px;
+}
+
+/* 左侧内容区域 */
+.popup-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* 右侧内容区域 */
+.popup-right {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 图片区域容器 */
+.image-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 100%; /* 确保高度填充满右侧区域 */
+}
+
+/* 图片网格布局 */
+.image-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 图片包装器 */
+.image-wrapper {
+    width: 100%;
+    height: 300px; /* 增加高度 */
+    overflow: hidden;
+    border-radius: 4px;
+    background: #f5f5f5;
+}
+
+/* 图片包装器标题 */
+.image-wrapper h5 {
+    margin: 0;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 站点图片样式 */
+.station-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+/* 图片悬停效果 */
+.station-image:hover {
+    transform: scale(1.05);
+}
+
+/* 弹出窗口头部 */
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 弹出窗口标题 */
+.popup-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+/* 关闭按钮 */
+.popup-close-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.popup-close-button:hover {
+    color: #333;
+}
+
+/* 基本信息区域 */
+.basic-info {
+    margin-bottom: 15px;
+}
+
+.basic-info p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 图表容器 */
+.chart-container {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.weather-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.weather-item span {
+    font-weight: bold;
+    margin-right: 10px;
+    color: #555;
+}
+
+/* 图表区域 */
+.weather-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chart-container {
+    height: 200px;
+    width: 100%;
+}
+
+/* 防止文本被选中 */
+.no-select {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .popup-content {
+        flex-direction: column;
+    }
+
+    .popup-left,
+    .popup-right {
+        min-width: 100%;
+    }
+
+    .custom-popup .mapboxgl-popup-content {
+        width: 95%;
+        max-width: 95% !important;
+    }
+} 
+
+.left-panel {
+    width: 300px;
+    padding: 15px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .weather-info {
+    margin-bottom: 20px;
+  }
+  
+  .chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+  }
+
+/* 两列布局的网格容器 */
+.weather-grid-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* 将容器分成两个相等的列 */
+    gap: 20px;  /* 列之间的间距 */
+    margin-top: 10px;
+}
+
+/* 每列的样式 */
+.weather-column {
+    font-size: 0.9em;
+}
+
+.weather-column p {
+    margin: 8px 0;
+    line-height: 1.4;
+    color: #333;
+}
+
+.weather-column p strong {
+    color: #666;
+    margin-right: 5px;
+}
+
+/* 天气信息标题样式 */
+.weather-info h4 {
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+/* 响应式布局调整 */
+@media (max-width: 768px) {
+    .weather-grid-two-columns {
+        grid-template-columns: 1fr;  /* 在小屏幕上改为单列 */
+        gap: 10px;
+    }
+}
+
+/* 图表容器样式 */
+.charts-container {
+    display: flex;
+    flex-direction: column; /* 改为纵向排列 */
+    width: 96%; /* 确保占满左侧区域宽度 */
+}
+
+.chart-wrapper {
+    width: 100%; /* 占满容器宽度 */
+    height: 200px; /* 调整图表高度 */
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* 确保图表正确显示 */
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+}
+
+#toolbar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#geocoder-container {
+    margin-bottom: 10px;
+}
+
+#fullscreen-container {
+    margin-bottom: 10px;
+}
+
+#parkingAvailabilityLegend {
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* 修改天气网格为两列布局 */
+.weather-grid-three-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 改为两列 */
+    gap: 15px;
+    padding: 10px;
+}
+
+/* 调整天气列的样式 */
+.weather-column {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.weather-column h5 {
+    margin: 0 0 10px 0;
+    color: #444;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* 响应式布局调整 */
+@media (max-width: 768px) {
+    .weather-grid-three-columns {
+        grid-template-columns: 1fr; /* 在小屏幕上改为单列 */
+    }
+    
+    .image-wrapper {
+        height: 200px; /* 在小屏幕上减小图片高度 */
+    }
+}
+
+/* 导航栏样式 */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+}
+
+.nav-left h1 {
+    font-size: 24px;
+    margin: 0;
+    color: #333;
+}
+
+.nav-left h2 {
+    font-size: 16px;
+    margin: 0;
+    color: #666;
+    font-weight: normal;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.current-time {
+    padding: 8px 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.menu-btn {
+    padding: 8px 20px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.menu-btn:hover {
+    background: #e0e0e0;
+}
+
+/* 通知栏样式 */
+.notification-bar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    text-align: center;
+    z-index: 999;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 调整地图容器位置以适应导航栏和通知栏 */
+#map {
+    margin-top: 100px; /* 导航栏高度 + 通知栏高度 */
+    height: calc(100vh - 100px);
+}
+
+.sidebar {
+    position: fixed;
+    right: -400px; /* 初始状态隐藏 */
+    top: 0;
+    width: 400px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.sidebar.active {
+    right: 0;
+}
+
+.sidebar-close-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.sidebar-close-btn:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 3% auto;
+    padding: 10px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.modal-close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #666;
+}
+
+.chart-wrapper {
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.toggle-heatmap-btn {
+    padding: 8px 16px;
+    margin-right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.toggle-heatmap-btn:hover {
+    background-color: #45a049;
+}

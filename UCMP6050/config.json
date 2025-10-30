@@ -1,0 +1,73 @@
+{
+  "model_config": {
+    "n_nodes": 100,
+    "input_dim": 10,
+    "hidden_dim": 64,
+    "output_dim": 10,
+    "num_layers": 3,
+    "node_feature_dim": 64,
+    "memory_size": 1000,
+    "top_k": 5
+  },
+  "data_config": {
+    "data_path": "data/lade",
+    "window_size": 12,
+    "horizon": 12,
+    "batch_size": 32,
+    "num_workers": 4,
+    "distance_threshold": 0.3,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15
+  },
+  "training_config": {
+    "epochs": 100,
+    "lr": 0.001,
+    "weight_decay": 1e-5,
+    "early_stopping_patience": 10,
+    "lr_scheduler_patience": 5,
+    "lr_scheduler_factor": 0.5,
+    "gradient_clip": 1.0
+  },
+  "rag_config": {
+    "use_rag": true,
+    "embedding_dim": 128,
+    "k_neighbors": 5,
+    "rag_hidden_dim": 256,
+    "fusion_hidden_dim": 128
+  },
+  "rl_config": {
+    "train_rl": true,
+    "n_vehicles": 10,
+    "max_capacity": 20,
+    "rl_hidden_dim": 256,
+    "rl_lr": 1e-4,
+    "rl_episodes": 100,
+    "buffer_size": 100000,
+    "gamma": 0.99,
+    "epsilon_start": 1.0,
+    "epsilon_end": 0.01,
+    "epsilon_decay": 0.995,
+    "rl_batch_size": 64,
+    "target_update_freq": 10
+  },
+  "llm_config": {
+    "llm_model": "gpt2",
+    "max_length": 512,
+    "temperature": 0.7,
+    "top_p": 0.9
+  },
+  "deployment_config": {
+    "api_host": "0.0.0.0",
+    "api_port": 5000,
+    "demo_host": "0.0.0.0",
+    "demo_port": 8000
+  },
+  "paths": {
+    "save_dir": "checkpoints",
+    "log_dir": "logs",
+    "figure_dir": "figs",
+    "demo_dir": "demo"
+  }
+}
+

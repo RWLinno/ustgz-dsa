@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JS Validation</title>
+</head>
+<body>
+    <h1>JavaScript Validation Test</h1>
+    <div id="result"></div>
+    
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        try {
+            // Try to load app.js
+            const script = document.createElement('script');
+            script.src = 'demo/app.js';
+            
+            script.onload = () => {
+                resultDiv.innerHTML = '<h2 style="color: green;">✅ app.js loaded successfully!</h2>';
+                console.log('✅ No syntax errors in app.js');
+            };
+            
+            script.onerror = (e) => {
+                resultDiv.innerHTML = '<h2 style="color: red;">❌ Error loading app.js</h2><pre>' + e + '</pre>';
+                console.error('❌ Error in app.js:', e);
+            };
+            
+            document.body.appendChild(script);
+            
+        } catch (error) {
+            resultDiv.innerHTML = '<h2 style="color: red;">❌ Syntax Error</h2><pre>' + error.message + '</pre>';
+            console.error('❌ Syntax error:', error);
+        }
+    </script>
+</body>
+</html>
+

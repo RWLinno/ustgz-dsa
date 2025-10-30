@@ -1,0 +1,110 @@
+\section{Methodology}
+\label{sec:solution}
+
+
+
+\subsection{Overall Framework}
+\paratitle{Theoretical Statement.} The study of the Urban Heat Island (UHI) effect involves understanding thermodynamics as a flow physics problem. In the context of flow physics, where diffusion occurs through a medium, it is common to establish a Cartesian coordinate system to analyze the classical heat function $u(x,y,z,t)$ with three spatial variables $(x,y,z)$ and one time variable $t$. In this setting, $u$ is considered a solution to the heat equation under isotropic conditions if it satisfies the following equation:
+\begin{equation}
+\frac{\partial u}{\partial t}=\alpha\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}+\frac{\partial^2 u}{\partial z^2}\right)
+\end{equation}
+Here, $\alpha$ is a positive coefficient known as the \textit{thermal diffusivity} of the medium. However, in the context of fine-grain heat dynamics within a city, the assumption of isotropic conditions for air is inaccurate. The heat flow across different regions with varying environments is anisotropic, meaning that $\alpha$ is not a constant coefficient but rather a function that depends on the spatial coordinates $(x,y,z)$. Consequently, the equation assumes a nonlinear partial differential form that does not possess a precise analytical solution~\cite{reitzle2019semi}:
+\begin{equation}
+\label{heat_equ}
+\frac{\partial u}{\partial t}=\frac{\partial}{\partial x}\left(\alpha(x, y, z) \frac{\partial u}{\partial x}\right)+\frac{\partial}{\partial y}\left(\alpha(x, y, z) \frac{\partial u}{\partial y}\right)+\frac{\partial}{\partial z}\left(\alpha(x, y, z) \frac{\partial u}{\partial z}\right)
+\end{equation}
+where $\alpha(x, y, z)$ represents the value's variation of \textit{thermal diffusivity} at different spatial locations.
+
+Our thermodynamic modeling approach is founded on this equation. First, for a specified region, under steady-state conditions where we exclude influences from other regions, the temperature field will remain constant over time, which implies that $\frac{\partial u}{\partial t}=0$. In this context, the temperature in that region will converge to a stable daily cycle, referred to as the intra-region \textbf{\textit{thermodynamic cycle}}. 
+Second, by removing the inner thermodynamic cycle for each station, the remaining variations are attributed to spatial heat flow, as described by Equation \ref{heat_equ} where $\frac{\partial u}{\partial t}\neq 0$. This heat flow characterizes the transfer of heat between urban regions, such as industrial heat flow from urban areas to suburban areas during peak times. We refer to this anisotropic flow as inter-region \textbf{\textit{thermal flow}}.
+
+
+\paratitle{Framework Design.} The overall architecture of our proposed model is depicted in Figure \ref{fig:frame}. Initially, we extract contextual features from multi-modal data to create station environment embeddings to support the modeling of Equation \ref{heat_equ}. Based on the theoretical statement, we decompose the temperature records into \textit{thermodynamic cycles} and \textit{thermal flows}. To model these components in our framework, we introduce a temporal periodicity modeling block for the \textit{\textbf{thermodynamic cycles}} ($\frac{\partial u}{\partial t}=0$) and a dynamic adaptive convolution block for the \textit{\textbf{thermal flows}} ($\frac{\partial u}{\partial t}\neq 0$). Additionally, we incorporate a spatial fine-tuning strategy with a variation-aware loss to facilitate the training of our framework.
+
+
+\subsection{Contextual Feature Representation}
+Contextual features are utilized to reveal the similarities or differences between regions for this research. The primary focus is to identify separability in geospatial space rather than intricate regional details. Therefore, we design a straightforward pipeline to extract contextual feature embeddings $\mathbf{C} \in \mathbb{R}^{N \times C}$ with minimal computational cost.
+
+We employ ResNet50 and DeepLabV3 to unsupervisedly extract visual features from satellite and street-view imagery, respectively. For land use semantic information, inspired by \cite{zou2024learning}, we apply one-hot encoding to differentiate land types and multiply them by their area proportions. We normalize the extracted embeddings from different data sources to align their scales before concatenating them into $\mathbf{C_{\textit{origin}}}$. Subsequently, we use t-SNE to reduce the dimension of $\mathbf{C_{\textit{origin}}}\rightarrow\mathbf{C}\in \mathbb{R}^{N \times C}$, with the aim of enhancing separability, where $C$ is the compressed dimension of the contextual feature.
+
+\subsection{Thermodynamic Cycle Modeling}
+\subsubsection{Context-aware Region Grouping}
+Conventional multi-channel models typically model each channel individually. This approach can introduce greater complexity and noise as the number of channels increases. This issue is particularly significant when modeling the thermodynamic cycle of temperature across various regions within a city, as numerous environmental studies have shown that temperature cycles in most regions of a city are synchronous \cite{gomez2004experimental,yang2023urban,dimoudi2013investigation}. Therefore, similar regions should share the same thermodynamic cycle modeling; otherwise, respective modeling may capture more noise from the transient inter-region thermal flow. In practice, this similarity is determined by their contextual environment features \cite{gomez2004experimental,heisler2010urban}.
+
+To learn the thermodynamic cycle within a city, we first conduct context-aware region grouping to divide stations and their corresponding regions into $\textbf{M}$ groups based on the context embedding $\mathbf{C}$ using K-Means clustering. The subsequent cycle modeling is then performed for each group rather than for each region. This reduces the computational complexity from $\mathcal{S} \times N$ to $\mathcal{S} \times \textbf{M}$, where $\mathcal{S}$ represents the complexity associated with modeling a single channel. More importantly, by explicitly setting the cycle modeling of similar regions to be the same, the framework becomes more robust to local fluctuations caused by noise or inter-region thermal flow.
+\subsubsection{Temporal Periodicity Modeling.}\label{sec:temporal_cycle} Our goal is to identify the underlying stable thermal periodicity for each regional group. Although recent works such as Autoformer and PatchTST have emphasized the importance of data periodicity for long-term time series forecasting, their reliance on heavy Transformer backbones is computationally expensive and sensitive to noise. Additionally, these models lack interpretability, which is crucial for real-world deployment. Inspired by \cite{lincyclenet}, we directly employ learnable daily cycles to explicitly model the temporal periodic pattern of the thermodynamic cycle.
+
+\paratitle{Daily Patterns Modeling.} Given $\textbf{M}$ groups with a daily cycle length $W=24$, we first generate learnable daily cycles $\mathbf{Q} \in \mathbb{R}^{M \times D}$, all initialized to zeros. This can be mapped to $\mathbf{Q} \in \mathbb{R}^{N \times D}$ according to the group mapping $M \Rightarrow N$. These daily cycles are globally shared among groups, which allows us to perform cyclic replications to obtain cyclic components $\textbf{C}$ of the sequence $\textit{X}$ of the same length. The recurrent cycles $\mathbf{Q}$ undergo gradient backpropagation training alongside the backbone module for prediction, yielding learned explicit representations that reveal the internal cyclic patterns within the sequence.
+
+When deriving subsequences $\textbf{C}$ from the cyclic replications of sequence $\mathbf{Q}$, we cannot directly ensure that they maintain the same periodic phase. To address this, we need to align $\mathbf{Q}$ by determining an alignment offset $t\mod W$, where $t$ is the current time point. After alignment, we extract the required subsequences from the aligned sequence ${Q}^{(t)}$. Mathematically, this process can be represented as:
+\begin{equation}
+\setlength\abovedisplayskip{0pt}
+Q^{(t)} = \operatorname{Roll}(Q, t \bmod W),
+C_{t-L+1: t} = [\overbrace{Q^{(t)} \cdots Q^{(t)}}^{\lfloor L / W \rfloor \text{ times}}, Q_{0: L \bmod W}^{(t)}]
+\end{equation}
+
+\paratitle{Long-term Variation Modeling.} In addition to daily patterns, regional temperature exhibits weekly variations due to human activity and significant seasonal changes resulting from climate change. While these variations may not be significant for short-term predictions over several days, they become important when learning a stable daily cycle from data collected over several years. Otherwise, the regression of the daily cycle \( \mathbf{Q} \) may become unstable as data transitions from summer to winter.
+
+Seasonal variation manifests as a shift in the overall data distribution. To address this, we utilize Reversible Instance Normalization (RevIN)~\cite{kim2021reversible} for each input data sequence to mitigate the effects of seasonal variation, defined by the following equation:
+\begin{equation}
+x = (x - \frac{1}{T} \sum_{t=1}^{T} x_t)/{\sqrt{\frac{1}{T} \sum_{t=1}^{T} (x_t - \frac{1}{T} \sum_{t=1}^{T} x_t)^2 + \psi }}
+\end{equation}
+
+Here, \( \psi \) is the normalization constant that ensures stabilization.
+To address the issue of weekly variation, we introduce a weekly variation filtration layer that models and filters out weekly fluctuations, thereby facilitating a more accurate learning of the daily pattern. We compute the time embedding for the day of the week using \( E_{\text{day}} = \operatorname{Emb}(t_{\text{day}} \bmod 7, pos) \) and learn the weights and biases for the weekly daily cycle using the following equations:
+\begin{equation}
+\mathcal{W}_{\text{cycle}} = \text{ReLU}\left(\mathrm{Linear}_w(E_{\text{day}})\right), \quad \mathcal{B}_{\text{cycle}} = \text{ReLU}\left(\mathrm{Linear}_b(E_{\text{day}})\right)
+\end{equation}
+
+Next, for each daily cycle, we update the cycle values in sequence $\textbf{Q}^{t}$ to account for the weekly variation using the equation:
+\begin{equation}
+\textbf{Q}^{t} = Q^{t} \cdot \mathcal{W}_{\text{cycle}} + \mathcal{B}_{\text{cycle}}.
+\end{equation}
+
+\subsection{Thermal Flow Modeling}
+
+\subsubsection{Residual Fluctuation Learning.}
+Thermal flow refers to the process of heat transfer that occurs due to temperature differences between adjacent regions. This process is similar to local fluctuations in the stable climate system. Unlike the thermodynamic cycles observed within a single region, the global value variation resulting from thermal flow is typically minor, often limited to single-digit changes. As a result, traditional time series forecasting models for weather or climate prediction frequently overlook the individual modeling of thermal flow.
+
+We introduce residual wave learning to address this issue as shown in Equation \ref{equ:res}. Based on thermodynamic cycle modeling, we remove the cycle components $\textbf{Q}^{t}$ from the observed field temperature $\textbf{X} \in \mathbb{R}^{N \times P}$ to enhance the $\mathcal{F}$ model's attention on the spatio-temporal wave caused by thermal flow. The output results of the backbone will be combined with the inferred cycle component $\textbf{Q}^{t+P}$ to obtain the final prediction $\hat{\textbf{X}} \in \mathbb{R}^{N \times K}$. 
+\begin{equation}
+\label{equ:res}
+    \hat{\textbf{X}} = \mathcal{F}(\textbf{X} - \textbf{Q}^{t}) + \textbf{Q}^{t+P}
+\end{equation}
+
+\subsubsection{Periodic Dynamic Graph Learning.}
+\label{sec:spatial_cycle}
+To model thermal flow, it is necessary to introduce graph learning in $\mathcal{F}$. However, static and distance-based graph learning structures, such as conventional STGCNs, cannot effectively represent the anisotropy of thermal flow mechanics in both spatial and temporal dimensions. This anisotropy arises from the spatio-temporal variation of thermal diffusivity, as described in Equation \ref{heat_equ}. Although advanced works, such as GraphWaveNet~\cite{wu2019graph}, introduce adaptive adjacency matrices to automatically learn the spatial relationships between nodes, they are limited in representing the spatial variance of $\alpha(x, y, z)$ and do not account for the time variation in $u(x,y,z,t)$ of the heat equation. Directly incorporating temporal dynamic graph learning to represent $t$ can lead to a model that is overly complex for multiple time steps and difficult to train. We design a periodic dynamic graph learning framework to address the modeling of thermal flow.
+
+\paratitle{Context-aware Adaptive Graph.} We adapt the basic self-adaptive adjacency matrix learning method from~\cite{wu2019graph} as the base matrix to represent spatial variance $\alpha(x, y, z)$ at static time $t$ and enhance it with context information awareness. The adaptive adjacency matrix is computed as:
+\begin{equation}
+\tilde{\mathbf{A}}_{a d p}=\operatorname{SoftMax}\left(\operatorname{ReLU}\left(\mathbf{E}_1 \cdot \mathbf{E}_2^T\right)\right) \odot \mathbf{A}
+\end{equation}
+where $\mathbf{E}_1$ and $\mathbf{E}_2$ are node embeddings obtained through linear transformations of the contextual feature $\mathbf{C} \in \mathbb{R}^{N \times C}$. It is important to note that we multiply the learned matrix by the original distance-based matrix $\mathbf{A}$ to maintain sparsity.
+
+\paratitle{Temporal Periodic Dynamic Learning.} To account for the temporal variation in thermal flow mechanics, we need to introduce variable $t$ to adjust the learned spatial relations in $\tilde{\mathbf{A}}_{a d p}$ at different time step $t$. However, the task becomes overly complex for increasing time steps. Therefore, we design a periodic dynamic learning method to manage complexity while accommodating an increasing number of time steps $t$.
+
+In practice, regional thermal flow continuously varies over time while also exhibiting regularity similar to intra-region thermodynamic cycles. This regularity results from the consistent warming and cooling periods that occur daily, leading to periodic thermal flow variation. Consequently, we expand $\tilde{\mathbf{A}}_{a d p}\rightarrow\tilde{\mathbf{A}}^{I}_{a d p} \in \mathbb{R}^{N \times N \times W}$, where $W$ is consistently set to 24, akin to thermodynamic cycle modeling, to represent the regular daily dynamics of thermal flow. For each $i \in W$, which represents the time of day, we individually construct $\tilde{\mathbf{A}}_{a d p}^{i}$ for this time period and perform spatial convolution based on it when each time step $t$ satisfies $t \bmod W = i$. Thus, the number of $\tilde{\mathbf{A}}_{a d p}^{i}$ is limited to 24, offering a clear and efficient solution for the temporal dynamic representation.
+
+Additionally, to extract fluctuation properties while maintaining efficiency, we employ a simple 2-layer MLP as the temporal backbone for the residual thermal flow series ${\textbf{X} - \textbf{Q}^{t}}$, denoted as $\textbf{X}_{res}$ below. The overall model's temporal periodic dynamic learning process can be formulated as:
+\begin{equation}
+\hat{\textbf{X}}_{res}^{t} = \operatorname{Conv}(\textbf{X}^{t}_{res}, \tilde{\mathbf{A}}_{a d p}^{t \bmod W}),\quad \hat{\textbf{Y}}_{res} = \operatorname{MLP}(\hat{\textbf{X}}_{res})
+\end{equation}
+
+\subsection{Fine-tuning and Variation-aware Loss}
+\subsubsection{Fluctuation Fine-tuning}
+Our residual learning framework enables the separate learning of thermodynamic cycles and thermal flow, which are decomposed and recomposed to predict the urban heat island (UHI) effect. However, the imbalance between these components can impede training. Local thermal flow fluctuations are minor compared to the daily thermal cycle, leading to potential misinterpretation as noise by the cycle learning block, and vice versa.
+
+Additionally, the temporal cycle learning block may overly adapt to temporal variations, hindering the thermal flow learning block's ability to model spatial relationships. This issue is partly addressed through our explicit daily pattern modeling strategy, which restricts the daily cycle modeling capacity of $\mathbf{Q}$. To enhance performance,     it is crucial to address this during training.
+Therefore, we introduce fluctuation fine-tuning. We freeze the gradient updates of the temporal cycle learning block for 20 epochs during the fine-tuning stage to reduce the impact of temporal overfitting on thermal flow modeling. The residual framework remains unchanged, allowing the model to focus on capturing meaningful relationships within the static residual components.
+
+\subsubsection{Variation-aware Loss.} Time series (TS) or spatial-temporal (ST) models typically minimize \(L_p\) norm distances as loss functions, such as Mean Absolute Error (MAE) or Mean Squared Error (MSE) for training. However, point-wise comparisons are insufficient for identifying continuous variations, such as trends and cycles, which can lead to uninformative predictions that do not account for temporal dynamics like peaks and troughs. For urban heat island (UHI) effect forecasting, we focus more on variation dynamics rather than single-value precision. Therefore, we need to design a variation-aware loss that considers both point-wise distances and temporal variations.
+
+Inspired by \cite{lee2022tilde}, we construct our loss using Amplitude Shifting Invariance \(\mathcal{L}_{amp}\), Phase Shifting Invariance \(\mathcal{L}_{phase}\), and Point-wise Distance \(\mathcal{L}_{point}\). Our variation-aware loss is formulated as follows:
+\begin{equation}
+    \mathcal{L}(Y, \hat{Y}) = \alpha \mathcal{L}_{amp}(Y, \hat{Y}) + (1 - \alpha) \mathcal{L}_{phase}(Y, \hat{Y}) + \gamma \mathcal{L}_{point}(Y, \hat{Y})
+\end{equation}
+\begin{equation}
+    \mathcal{L}(Y, \hat{Y}) = \alpha \mathcal{L}_{amp} +  \mathcal{L}_{phase} + \mathcal{L}_{point}
+\end{equation}
+where \(\alpha,\gamma \in [0,1]\) are hyperparameters. We provide the introduction and equations for each loss component in Appendix \ref{app:loss}.

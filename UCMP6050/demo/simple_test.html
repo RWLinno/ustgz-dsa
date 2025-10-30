@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CTIS Simple Test</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; font-family: Arial; }
+        #map { height: 100vh; width: 100%; }
+        #status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .status-item { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="status">
+        <h3>Status</h3>
+        <div class="status-item">Leaflet: <span id="leafletStatus">❌</span></div>
+        <div class="status-item">Data: <span id="dataStatus">❌</span></div>
+        <div class="status-item">Markers: <span id="markerStatus">❌</span></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        console.log('Simple test loading...');
+
+        // Step 1: Init map
+        const map = L.map('map').setView([31.2304, 121.4737], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        document.getElementById('leafletStatus').textContent = '✅';
+        console.log('✅ Map ready');
+
+        // Step 2: Load data
+        Promise.all([
+            fetch('data/pickup_points.json').then(r => r.json()),
+            fetch('data/delivery_points.json').then(r => r.json())
+        ]).then(([pickup, delivery]) => {
+            document.getElementById('dataStatus').textContent = '✅';
+            console.log(`✅ Data loaded: ${pickup.length} pickup, ${delivery.length} delivery`);
+
+            // Step 3: Add markers
+            let count = 0;
+            [...pickup.slice(0, 20), ...delivery.slice(0, 20)].forEach(point => {
+                const color = point.role_color || '#4299e1';
+                L.circleMarker([point.lat, point.lng], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    fillOpacity: 0.8
+                }).addTo(map).bindPopup(`<b>${point.id}</b><br>Role: ${point.role}<br>Demand: ${point.demand}`);
+                count++;
+            });
+
+            document.getElementById('markerStatus').textContent = `✅ ${count}`;
+            console.log(`✅ Added ${count} markers`);
+        }).catch(error => {
+            console.error('❌ Error:', error);
+            document.getElementById('dataStatus').textContent = '❌ ' + error.message;
+        });
+    </script>
+</body>
+</html>
+

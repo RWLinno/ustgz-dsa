@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# PyTorch
+*.pth
+*.pt
+checkpoints/
+*.ckpt
+
+# Data
+data/
+*.csv
+*.json.bak
+*.npy
+*.npz
+
+# Logs
+logs/
+*.log
+wandb/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Generated files
+demo/data/*.json
+figs/*.pdf
+figs/*.png
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Config with secrets
+.env
+secrets.json
+

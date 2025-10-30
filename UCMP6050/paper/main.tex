@@ -1,0 +1,226 @@
+\documentclass[sigconf]{acmart}
+
+\usepackage{booktabs} % To thicken table lines
+
+\usepackage[english]{babel}
+\usepackage{moresize}
+\usepackage{threeparttable} 
+\usepackage{amsmath}
+\usepackage{algorithmic}
+\usepackage{balance}
+\usepackage{comment}
+\usepackage{paralist}
+\usepackage{bm}
+\usepackage{bbding}
+\usepackage{pgfplots}
+\usetikzlibrary{pgfplots.dateplot}
+\usepackage{xcolor}
+\usepackage{flushend}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{url}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{mathrsfs}
+\usepackage{subfigure}
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage[linesnumbered,algoruled,boxed,lined]{algorithm2e}
+\usepackage{adjustbox}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\usetikzlibrary{pgfplots.dateplot}
+\usepackage{filecontents}
+\usepackage{tabularx}
+\usepackage{threeparttable}
+% Tableau colors
+\definecolor{tblue}{RGB}{31,119,180}
+\definecolor{torange}{RGB}{255,127,14}
+\definecolor{tgreen}{RGB}{44,160,44}
+\definecolor{tred}{RGB}{214,39,40}
+\definecolor{tpurple}{RGB}{148,103,189}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{soul} % 导入 soul 包
+\usepackage{color} % 颜色包，color 必须导入，xcolor 建议导入
+% \usepackage{minted}
+% \usepackage{amssymb}
+% \setminted{
+% 	frame=lines
+% 	tabsize=4
+% 	encoding=utf8
+% }
+
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+
+\newcommand{\ie}{\textit{i}.\textit{e}.,\xspace}
+\newcommand{\eg}{\textit{e}.\textit{g}.,\xspace} 
+\newcommand{\wrt}{\textit{w}.\textit{r}.\textit{t},\xspace} 
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\etal}{\textit{et al}.}
+\def\model{DeepUHI\xspace}
+\newcommand{\paratitle}[1]{\noindent\textbf{#1}}
+\newcommand{\fixme}[1]{\textbf{\textcolor{red}{[FIXME: #1]}}}
+\newtheorem{myDef}{Definition}
+\newtheorem{prob}{Problem}
+\newtheorem*{problem}{Problem Statement}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+
+\copyrightyear{2025}
+\acmYear{2025}
+\setcopyright{acmlicensed}\acmConference[KDD '25]{Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2}{August 3--7, 2025}{Toronto, ON, Canada}
+\acmBooktitle{Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2 (KDD '25), August 3--7, 2025, Toronto, ON, Canada}
+\acmDOI{10.1145/3711896.3736962}
+\acmISBN{979-8-4007-1454-2/2025/08}
+
+
+\settopmatter{printacmref=true}
+
+\begin{document}
+%\fancyhead{}
+%\title{Deciphering Urban Micro-Climate in Seoul: A New Dataset and A Data-Driven Approach}
+\title{Fine-grained Urban Heat Island Effect Forecasting: A Context-aware Thermodynamic Modeling Framework}
+% \author{Anonymous Author(s)}
+\author{Xingchen Zou}
+\affiliation{%
+  \institution{The Hong Kong University of Science and Technology (Guangzhou)}
+  \city{Guangzhou}
+  \country{China}
+}
+% \affiliation{%
+%   \institution{PCITECH}
+%   \city{Guangzhou}
+%   \country{China}}
+\email{xzou428@connect.hkust-gz.edu.cn}
+
+\author{Weilin Ruan}
+\affiliation{%
+  \institution{The Hong Kong University of Science and Technology (Guangzhou)}
+  \city{Guangzhou}
+  \country{China}}
+\email{wruan792@connect.hkust-gz.edu.cn}
+
+\author{Siru Zhong}
+\affiliation{%
+  \institution{The Hong Kong University of Science and Technology (Guangzhou)}
+  \city{Guangzhou}
+  \country{China}
+}
+\email{szhong691@connect.hkust-gz.edu.cn}
+
+\author{Yuehong Hu}
+\affiliation{%
+  \institution{The Hong Kong University of Science and Technology (Guangzhou)}
+  \city{Guangzhou}
+  \country{China}
+}
+\email{yhu322@connect.hkust-gz.edu.cn}
+
+\author{Yuxuan Liang}
+\authornote{Corresponding author. Email: yuxliang@outlook.com.}
+\affiliation{%
+  \institution{The Hong Kong University of Science and Technology (Guangzhou)}
+  \city{Guangzhou}
+  \country{China}
+}
+\email{yuxliang@outlook.com}
+
+
+
+\renewcommand{\shortauthors}{Xingchen Zou, Weilin Ruan, Siru Zhong, Yuehong Hu, \& Yuxuan Liang}
+
+\begin{abstract}
+
+Climate change and rapid urbanization have led to the Urban Heat Island (UHI) effect, resulting in higher temperatures in metropolitan areas and negatively impacting urban communities. Accurate UHI forecasting is crucial for identifying high-risk periods and locations, especially in cities with vulnerable populations. Current methods are limited by data granularity and inadequate modeling of regional thermodynamics, which affects both accuracy and spatio-temporal granularity. In this paper, we propose \model, a data-driven context-aware framework for modeling local thermodynamics based on the heat equation, alongside the \textit{SeoulTemp} dataset, the first multi-modal dataset for UHI effect predictions at the street level. Our framework utilizes a heat decomposition method to represent urban thermodynamics through thermodynamic cycles and thermal flows, effectively integrating urban environmental data. Extensive experiments show that our framework improves accuracy in UHI effect prediction and warning tasks, outperforming leading models. We have integrated \model into our SeoUHI platform to provide hourly street-level UHI forecasting for Seoul. The code, platform, and dataset are accessible at \url{https://github.com/CityMind-Lab/DeepUHI}.
+
+
+
+
+\end{abstract}
+
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10002951.10003227.10003236</concept_id>
+       <concept_desc>Information systems~Spatial-temporal systems</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010405.10010432.10010437.10010438</concept_id>
+       <concept_desc>Applied computing~Environmental sciences</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002951.10003227.10003351</concept_id>
+       <concept_desc>Information systems~Data mining</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Spatial-temporal systems}
+% \ccsdesc[500]{Applied computing~Environmental sciences}
+% \ccsdesc[500]{Information systems~Data mining}
+
+\keywords{Urban Heat Island Effect, Thermodynamic Modeling, Time Series Forecasting, Spatio-Temporal Data Mining, Urban Computing}
+
+
+% \received{20 February 2007}
+% \received[revised]{12 March 2009}
+% \received[accepted]{5 June 2009}
+
+\maketitle
+
+\newcommand\kddavailabilityurl{https://doi.org/10.5281/zenodo.15510073}
+
+\ifdefempty{\kddavailabilityurl}{}{
+\begingroup\small\noindent\raggedright\textbf{KDD Availability Link:}\\
+% please change the following context to include multiple artifacts if necessary.
+The source code of this paper has been made publicly available at \url{\kddavailabilityurl}.
+\endgroup
+}
+
+
+\input{intro}
+
+
+\input{model}
+\input{solution}
+\input{eval}
+\input{deploy}
+\input{relate}
+\input{conclusion}
+
+\section*{Acknowledgement}
+This work is mainly supported by the Guangdong Basic and Applied Basic Research Foundation (No. 2025A1515011994). This work is also supported by the National Natural Science Foundation of China (No. 62402414), Guangzhou Municipal Science and Technology Project (No. 2023A03J0011), the Guangzhou Industrial Information and Intelligent Key Laboratory Project (No. 2024A03J0628), and a grant from State Key Laboratory of Resources and Environmental Information System, and Guangdong Provincial Key Lab of Integrated Communication, Sensing and Computation for Ubiquitous Internet of Things (No. 2023B1212010007). Additionally, this work benefits from the Red Bird MPhil Program at the Hong Kong University of Science and Technology (Guangzhou).
+
+We would like to extend our special gratitude to PCI Technology Group Co., Ltd. (PCITECH), Guangzhou, China, as well as to Dr. Zheng Chen and Dr. Kai Wang from PCITECH for their valuable support of this work.
+
+\clearpage
+
+\bibliographystyle{ACM-Reference-Format}
+\balance
+\bibliography{refs}
+
+\input{appendix}
+
+\end{document}
